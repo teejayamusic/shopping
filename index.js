@@ -56,6 +56,96 @@ app.use((req, res, next) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function createTables() {
+  try {
+    await pool.query(`
+      CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        number VARCHAR(20) NOT NULL,
+        address TEXT NOT NULL
+      );
+
+      CREATE TABLE items (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        img_url TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        username VARCHAR(50) NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        gender VARCHAR(10),
+        type VARCHAR(50),
+        description TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+
+      CREATE TABLE cart_items (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        img_url TEXT NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (product_id) REFERENCES items(id)
+      );
+    `);
+    console.log('Tables created successfully');
+  } catch (error) {
+    console.error('Error creating tables:', error);
+  } finally {
+    // Close the connection pool
+    await pool.end();
+  }
+}
+
+// Call the function to create tables when your application starts
+createTables();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/register', (req, res) => {
   const { username, password, name, number, address } = req.body;
 
