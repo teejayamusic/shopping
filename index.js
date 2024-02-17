@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 const jwt = require('jsonwebtoken');
-
+const { Pool } = require('pg');
 const secretKey = 'hello1234';
 
 const pool = new Pool({
