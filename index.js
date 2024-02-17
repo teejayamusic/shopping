@@ -22,6 +22,70 @@ db.connect((err) => {
     console.log('Connected to MySQL');
   }
 });
+
+
+
+
+
+
+
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL: ', err);
+    // Handle fatal error here
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      // Reconnect to the database
+      setTimeout(() => {
+        db.connect((err) => {
+          if (err) {
+            console.error('Error reconnecting to MySQL: ', err);
+          } else {
+            console.log('Reconnected to MySQL');
+          }
+        });
+      }, 2000); // Wait for 2 seconds before reconnecting
+    }
+  } else {
+    console.log('Connected to MySQL');
+  }
+});
+
+// Add an error handler to the MySQL connection
+db.on('error', (err) => {
+  console.error('MySQL error: ', err);
+  // Handle fatal error here
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    // Reconnect to the database
+    setTimeout(() => {
+      db.connect((err) => {
+        if (err) {
+          console.error('Error reconnecting to MySQL: ', err);
+        } else {
+          console.log('Reconnected to MySQL');
+        }
+      });
+    }, 2000); // Wait for 2 seconds before reconnecting
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 
