@@ -97,7 +97,7 @@ app.use((req, res, next) => {
 app.post('/register', (req, res) => {
   const { username, password, name, number, address } = req.body;
 
-  const sql = 'INSERT INTO user (username, password, name, number, address) VALUES (?, ?, ?, ?, ?)';
+  const sql = 'INSERT INTO "user" (username, password, name, number, address) VALUES (?, ?, ?, ?, ?)';
 
   pool.query(sql, [username, password, name, number, address], (err, result) => {
     if (err) {
