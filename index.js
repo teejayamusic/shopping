@@ -104,13 +104,18 @@ app.post('/api/register', (req, res) => {
       console.error('Error registering user: ', err);
       res.status(500).send('Error registering user');
     } else {
-      console.log('User registered successfully');
-const userId = result.rows[0].id;
-      // Generate JWT token
-      const token = jwt.sign({ id: userId, username }, secretKey, { expiresIn: '400h' });
+      if (result.rows.length > 0 && result.rows[0].id) {
+        console.log('User registered successfully');
+        const userId = result.rows[0].id;
+        // Generate JWT token
+        const token = jwt.sign({ id: userId, username }, secretKey, { expiresIn: '400h' });
 
-      // Send the token back to the client (optional)
-      res.status(200).json({ message: 'User registered successfully', token });
+        // Send the token back to the client (optional)
+        res.status(200).json({ message: 'User registered successfully', token });
+      } else {
+        console.error('No user ID returned after registration');
+        res.status(500).send('Error registering user');
+      }
     }
   });
 });
