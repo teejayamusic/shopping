@@ -94,7 +94,7 @@ app.use((req, res, next) => {
 
 
 
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
   const { username, password, name, number, address } = req.body;
 
   const sql = 'INSERT INTO "user" (username, password, name, number, address) VALUES ($1, $2, $3, $4, $5)';
