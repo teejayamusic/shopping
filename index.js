@@ -120,7 +120,7 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  const sql = 'SELECT * FROM user WHERE username = ?';
+  const sql = 'SELECT * FROM "user" WHERE username = $1';
 
   pool.query(sql, [username], (err, results) => {
     if (err) {
@@ -200,8 +200,8 @@ app.post('/items/upload', (req, res) => {
   const { title, img_url,price,gender,type,description } = req.body;
   const user_id = req.user.id; // Assuming you use the username as the user_id
 const username=req.user.username;
-  const sql = 'INSERT INTO items (title, img_url, user_id,username,price,gender,type,description) VALUES (?,?,?,?,?,?,?,? )';
-  db.query(sql, [title, img_url,user_id,username,price,gender,type,description], (err, result) => {
+  const sql = 'INSERT INTO "items" (title, img_url, user_id,username,price,gender,type,description) VALUES ($1,$2,$3,$4,$5,$6,$7,$8 )';
+  pool.query(sql, [title, img_url,user_id,username,price,gender,type,description], (err, result) => {
     if (err) {
       console.error('Error uploading item: ', err);
       res.status(500).send('Error uploading item');
@@ -217,8 +217,8 @@ app.get('/items/user/:username', async (req, res) => {
   
 const username=req.user.username;
 
-  const sql = 'SELECT * FROM items WHERE username = ?';
-  db.query(sql, [username], (err, results) => {
+  const sql = 'SELECT * FROM items WHERE username = $1';
+  pool.query(sql, [username], (err, results) => {
     if (err) {
       console.error('Error retrieving items: ', err);
       res.status(500).send('Error retrieving items');
@@ -236,7 +236,7 @@ const username=req.user.username;
 // GET request to retrieve all items
 app.get('/items/all', (req, res) => {
   const sql = 'SELECT * FROM items';
-  db.query(sql, (err, results) => {
+  pool.query(sql, (err, results) => {
     if (err) {
       console.error('Error retrieving all items: ', err);
       res.status(500).send('Error retrieving all items');
@@ -248,8 +248,8 @@ app.get('/items/all', (req, res) => {
 
 app.get('/items/fetch/:itemId', (req, res) => {
   const itemId = req.params.itemId;
-  const sql = 'SELECT * FROM items WHERE id = ?';
-  db.query(sql, [itemId], (err, results) => {
+  const sql = 'SELECT * FROM "items" WHERE id = $1';
+  pool.query(sql, [itemId], (err, results) => {
     if (err) {
       console.error('Error retrieving item by ID: ', err);
       res.status(500).send('Error retrieving item by ID');
@@ -268,8 +268,8 @@ app.post('/cart/add', (req, res) => {
     const { user_id, product_id, quantity } = req.body;
   
     // First, fetch product details based on product_id
-    const getProductSql = 'SELECT title, img_url,price FROM items WHERE id = ?';
-    db.query(getProductSql, [product_id], (getProductErr, productResult) => {
+    const getProductSql = 'SELECT title, img_url,price FROM "items" WHERE id = $1';
+    pool.query(getProductSql, [product_id], (getProductErr, productResult) => {
       if (getProductErr) {
         console.error('Error fetching product details: ', getProductErr);
         res.status(500).send('Error fetching product details');
@@ -277,8 +277,8 @@ app.post('/cart/add', (req, res) => {
         const { title, img_url,price} = productResult[0];
   const status='pending'
         // Now, insert the item into the cart_items table
-        const insertIntoCartSql = 'INSERT INTO cart_items (user_id, product_id, quantity, title, img_url,price,status) VALUES (?, ?, ?, ?, ?,?,?)';
-        db.query(
+        const insertIntoCartSql = 'INSERT INTO "cart_items" (user_id, product_id, quantity, title, img_url,price,status) VALUES ($1, $2, $3, $4, $5,$6,$7)';
+        pool.query(
           insertIntoCartSql,
           [user_id, product_id, quantity, title, img_url,price,status],
           (insertErr, insertResult) => {
@@ -315,8 +315,8 @@ app.post('/cart/add', (req, res) => {
       return res.status(400).send('User ID is required');
     }
     // Delete the item from the cart_items table based on its ID
-    const deleteItemSql = 'DELETE FROM cart_items WHERE (product_id,user_id) = (?,?)';
-    db.query(deleteItemSql, [itemId,userid], (deleteErr, deleteResult) => {
+    const deleteItemSql = 'DELETE FROM "cart_items" WHERE (product_id,user_id) = ($1,$2)';
+    pool.query(deleteItemSql, [itemId,userid], (deleteErr, deleteResult) => {
       if (deleteErr) {
         console.error('Error deleting item from cart: ', deleteErr);
         res.status(500).send('Error deleting item from cart');
@@ -342,9 +342,9 @@ app.get('/cart/items', verifyToken, async (req, res) => {
     return res.status(400).send('User ID is required');
   }
 
-  const sql = 'SELECT * FROM cart_items WHERE user_id = ?';
+  const sql = 'SELECT * FROM "cart_items" WHERE user_id = $1';
 
-  db.query(sql, [user_id], (err, results) => {
+  pool.query(sql, [user_id], (err, results) => {
     if (err) {
       console.error('Error retrieving cart items: ', err);
       res.status(500).send('Error retrieving cart items');
@@ -361,9 +361,9 @@ app.post('/cart/buy', verifyToken, (req, res) => {
     return res.status(400).send('User ID is required');
   }
 
-  const sql = 'UPDATE cart_items SET status = "bought" WHERE user_id = ?';
+  const sql = 'UPDATE "cart_items" SET status = "bought" WHERE user_id = $1';
 
-  db.query(sql, [user_id], (err, result) => {
+  pool.query(sql, [user_id], (err, result) => {
     if (err) {
       console.error('Error updating items status: ', err);
       res.status(500).send('Error updating items status');
@@ -378,9 +378,9 @@ app.post('/cart/buy', verifyToken, (req, res) => {
 app.put('/user/update', verifyToken, (req, res) => {
   const { id, name, number, address } = req.body;
 
-  const sql = 'UPDATE user SET name = ?, number = ?, address = ? WHERE id = ?';
+  const sql = 'UPDATE "user" SET name = $1, number = $2, address = $3 WHERE id = $4';
 
-  db.query(sql, [name, number, address, id], (err, result) => {
+  pool.query(sql, [name, number, address, id], (err, result) => {
     if (err) {
       console.error('Error updating user details: ', err);
       res.status(500).send('Error updating user details');
@@ -393,9 +393,9 @@ app.put('/user/update', verifyToken, (req, res) => {
 
 
 app.get('/user/details', verifyToken, (req, res) => {
-  const sql = 'SELECT * FROM user WHERE id = ?';
+  const sql = 'SELECT * FROM "user" WHERE id = $1';
 
-  db.query(sql, [req.user.id], (err, results) => {
+  pool.query(sql, [req.user.id], (err, results) => {
     if (err) {
       console.error('Error retrieving user details: ', err);
       res.status(500).send('Error retrieving user details');
