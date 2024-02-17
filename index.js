@@ -8,20 +8,23 @@ const jwt = require('jsonwebtoken');
 
 const secretKey = 'hello1234';
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'data',
+const pool = new Pool({
+  host: 'dpg-cn86flgcmk4c739otbsg-a',
+  user: 'luision_user',
+  password: 'NoLqOxiLpa9BD2ryYH89q8oioh84OrrL',
+  database: 'luision',
+  port: 5432, // PostgreSQL default port
 });
 
-db.connect((err) => {
+pool.connect((err) => {
   if (err) {
-    console.error('Error connecting to MySQL: ', err);
+    console.error('Error connecting to PostgreSQL: ', err);
   } else {
-    console.log('Connected to MySQL');
+    console.log('Connected to PostgreSQL');
   }
 });
+
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 
@@ -58,7 +61,7 @@ app.post('/register', (req, res) => {
 
   const sql = 'INSERT INTO user (username, password, name, number, address) VALUES (?, ?, ?, ?, ?)';
 
-  db.query(sql, [username, password, name, number, address], (err, result) => {
+  pool.query(sql, [username, password, name, number, address], (err, result) => {
     if (err) {
       console.error('Error registering user: ', err);
       res.status(500).send('Error registering user');
