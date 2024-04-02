@@ -9,10 +9,10 @@ const jwt = require('jsonwebtoken');
 const secretKey = 'hello1234';
 
 const db = mysql.createConnection({
-  host: 'sql6.freesqldatabase.com',
-  user: 'sql6684809',
-  password: '7pbcALPYXe',
-  database: 'sql6684809',
+  host: 'bxsfkzesct30q9qorkgp-mysql.services.clever-cloud.com',
+  user: 'uxwrhngiimlh3yze',
+  password: 'DwaVnJPsTDc1hzLuKqSJ',
+  database: 'bxsfkzesct30q9qorkgp',
 });
 
 
