@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const secretKey = 'hello1234';
 
 const db = mysql.createConnection({
+  connectionLimit: 10, // Adjust this value according to your requirements
   host: 'bxsfkzesct30q9qorkgp-mysql.services.clever-cloud.com',
   user: 'uxwrhngiimlh3yze',
   password: 'DwaVnJPsTDc1hzLuKqSJ',
